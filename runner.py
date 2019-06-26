@@ -50,31 +50,39 @@ def generate_routefile():
 guiShape="passenger"/>
         <vType id="typeNS" accel="0.8" decel="4.5" sigma="0.5" length="7" minGap="3" maxSpeed="25" guiShape="bus"/>
 
-        <route id="route0" edges="1to2 2toh1 h1toh2 h2to4 4to_out" />
+        <route id="route0" edges="1to2 2toh1 h1toh2 h2to4" />
         
-        <route id="route1" edges="1to2 2to4 4to_out" />
+        <route id="route1" edges="1to2 2to4" />
 
-        <route id="route2" edges="1to3 3toh2 h2to4 4to_out" />
+        <route id="route2" edges="1to3 3toh2 h2to4" />
+        
         """, file=routes)
+        # <route id="route0" edges="1to2 2toh1 h1toh2 h2to4 4to_out" />
+        
+        # <route id="route1" edges="1to2 2to4 4to_out" />
 
+        # <route id="route2" edges="1to3 3toh2 h2to4 4to_out" />
+        # <route id="route0" edges="1to2 2to4 4to_out" />
+        
+        # <route id="route1" edges="1to2 2to3 3to4 4to_out" />
 
+        # <route id="route2" edges="1to3 3to4 4to_out" /> 
 
         vehNr = 0
         for i in range(N):
-            if i%10 == 0:
-                rand_num = random.uniform(0, 1)
-                if rand_num < p_0:
-                    print('    <vehicle id="route0_%i" type="typeNS" route="route0" depart="%i" />' % (
-                        vehNr, i), file=routes)
-                    vehNr += 1
-                if rand_num >= p_0 and rand_num < p_1:
-                    print('    <vehicle id="route1_%i" type="typeNS" route="route1" depart="%i" />' % (
-                        vehNr, i), file=routes)
-                    vehNr += 1
-                if rand_num >= p_1:
-                    print('    <vehicle id="route2_%i" type="typeNS" route="route2" depart="%i" />' % (
-                        vehNr, i), file=routes)
-                    vehNr += 1
+            rand_num = random.uniform(0, 1)
+            if rand_num < p_0:
+                print('    <vehicle id="route0_%i" type="typeNS" route="route0" depart="%i" />' % (
+                    vehNr, i), file=routes)
+                vehNr += 1
+            if rand_num >= p_0 and rand_num < p_1:
+                print('    <vehicle id="route1_%i" type="typeNS" route="route1" depart="%i" />' % (
+                    vehNr, i), file=routes)
+                vehNr += 1
+            if rand_num >= p_1:
+                print('    <vehicle id="route2_%i" type="typeNS" route="route2" depart="%i" />' % (
+                    vehNr, i), file=routes)
+                vehNr += 1
         print("</routes>", file=routes)
 
 # The program looks like this
