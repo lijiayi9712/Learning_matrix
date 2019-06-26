@@ -50,11 +50,11 @@ def generate_routefile():
 guiShape="passenger"/>
         <vType id="typeNS" accel="0.8" decel="4.5" sigma="0.5" length="7" minGap="3" maxSpeed="25" guiShape="bus"/>
 
-        <route id="route0" edges="1to2 2to3 3to4 4to_out" />
+        <route id="route0" edges="1to2 2toh1 h1toh2 h2to4 4to_out" />
         
         <route id="route1" edges="1to2 2to4 4to_out" />
 
-        <route id="route2" edges="1to3 3to4 4to_out" />
+        <route id="route2" edges="1to3 3toh2 h2to4 4to_out" />
         """, file=routes)
 
 
