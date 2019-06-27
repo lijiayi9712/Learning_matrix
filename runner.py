@@ -32,6 +32,23 @@ else:
 
 from sumolib import checkBinary  # noqa
 import traci  # noqa
+import sumolib
+
+# parse the net
+net = sumolib.net.readNet('data/sample.net.xml')
+nodes = net.getNodes()
+edges = net.getEdges()
+# retrieve the coordinate of a node based on its ID
+
+lane = {}   #dict mapping each node to the list of edges pointing out of the node
+for node in nodes:
+    connections = node.getConnections()
+    lane[node.getID()] = []
+    for connection in connections:
+        to_edge = connection.getTo()
+        #node_across_edge = node.getID()].append(to_edge.getToNode()
+        lane[node.getID()].append(to_edge)
+
 
 
 def generate_routefile():
@@ -50,11 +67,11 @@ def generate_routefile():
 guiShape="passenger"/>
         <vType id="typeNS" accel="0.8" decel="4.5" sigma="0.5" length="7" minGap="3" maxSpeed="25" guiShape="bus"/>
 
-        <route id="route0" edges="1to2 2toh1 h1toh2 h2to4" />
+        <route id="route0" edges="1to2 2toh1 h1toh2 h2to5 5to4" />
         
         <route id="route1" edges="1to2 2to4" />
 
-        <route id="route2" edges="1to3 3toh2 h2to4" />
+        <route id="route2" edges="1to3 3toh2 h2to5 5to4" />
         
         """, file=routes)
         # <route id="route0" edges="1to2 2toh1 h1toh2 h2to4 4to_out" />
@@ -95,11 +112,24 @@ guiShape="passenger"/>
 #    </tlLogic>
 
 
+
+# def add_vehicle(index):
+#     #current_veh = traci.vehicle.getIDList()
+#     traci.vehicle.addFull(vehID="veh" + str(index), typeID="typeNS")
+
+# def closest_node(veh_id):
+
+
+
+
 def run():
     """execute the TraCI control loop"""
+    random.seed(42)  # make tests reproducible
+    N = 3600  # number of time steps
     step = 0
     # we start with phase 2 where EW has green
     #traci.trafficlight.setPhase("0", 2)
+    #For i in range(N):
     while traci.simulation.getMinExpectedNumber() > 0:
         # traci.vehicle.addFull(...)
         traci.simulationStep()

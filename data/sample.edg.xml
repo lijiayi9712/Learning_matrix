@@ -10,6 +10,7 @@
     <edge from="N2" id="2toh1" to="helper1" type="1L45" />
     <edge from="N3" id="3toh2" to="helper2" type="1L45" />
     <edge from="helper1" id="h1toh2" to="helper2" type="1L45" />
-    <edge from="helper2" id="h2to4" to="N4" type="2L45" />
+    <edge from="helper2" id="h2to5" to="N5" type="2L45" />
+    <edge from="N5" id="5to4" to="N4" type="1L45" />
     <edge from="N4" id="4to_out" to="out" type="1L45" />
 </edges>
