@@ -22,6 +22,9 @@ import os
 import sys
 import optparse
 import random
+import numpy as np
+transition = np.array([0 0 0 0 0 0 0; 0.3 0 0 0 0 0 0; 0.7 0 0 0 0 0 0; 0 0.6 0 0 0 0 0; 0 0.4 0 0 0 0 0; 0 0 1 1 0 0 0; 0 0 0 0 1 1 0])
+transition =  np.transpose(transition)
 
 # we need to import python modules from the $SUMO_HOME/tools directory
 if 'SUMO_HOME' in os.environ:
@@ -49,6 +52,10 @@ for node in nodes:
         #node_across_edge = node.getID()].append(to_edge.getToNode()
         lane[node.getID()].append(to_edge)
 
+edge_index = {} # assign each edge an index s.t we can name each edge a separate route with proper naming index.
+
+for i, edge in enumerate(edges):
+    edge_index{edge} = i
 
 
 def generate_routefile():
@@ -66,58 +73,33 @@ def generate_routefile():
         <vType id="typeWE" accel="0.8" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="16.67" \
 guiShape="passenger"/>
         <vType id="typeNS" accel="0.8" decel="4.5" sigma="0.5" length="7" minGap="3" maxSpeed="25" guiShape="bus"/>
-
-        <route id="route0" edges="1to2 2toh1 h1toh2 h2to5 5to4" />
-        
-        <route id="route1" edges="1to2 2to4" />
-
-        <route id="route2" edges="1to3 3toh2 h2to5 5to4" />
-        
         """, file=routes)
-        # <route id="route0" edges="1to2 2toh1 h1toh2 h2to4 4to_out" />
-        
-        # <route id="route1" edges="1to2 2to4 4to_out" />
-
-        # <route id="route2" edges="1to3 3toh2 h2to4 4to_out" />
-        # <route id="route0" edges="1to2 2to4 4to_out" />
-        
-        # <route id="route1" edges="1to2 2to3 3to4 4to_out" />
-
-        # <route id="route2" edges="1to3 3to4 4to_out" /> 
-
-        vehNr = 0
-        for i in range(N):
-            rand_num = random.uniform(0, 1)
-            if rand_num < p_0:
-                print('    <vehicle id="route0_%i" type="typeNS" route="route0" depart="%i" />' % (
-                    vehNr, i), file=routes)
-                vehNr += 1
-            if rand_num >= p_0 and rand_num < p_1:
-                print('    <vehicle id="route1_%i" type="typeNS" route="route1" depart="%i" />' % (
-                    vehNr, i), file=routes)
-                vehNr += 1
-            if rand_num >= p_1:
-                print('    <vehicle id="route2_%i" type="typeNS" route="route2" depart="%i" />' % (
-                    vehNr, i), file=routes)
-                vehNr += 1
+        print("<route id=route00 edges=in_to1 />", file=routes)
+        for (edge, index) in edge_index:
+            print("<route id=route" + str(index) + " edges="+ str(edge.getID()) +'/>', file=routes)
         print("</routes>", file=routes)
 
-# The program looks like this
-#    <tlLogic id="0" type="static" programID="0" offset="0">
-# the locations of the tls are      NESW
-#        <phase duration="31" state="GrGr"/>
-#        <phase duration="6"  state="yryr"/>
-#        <phase duration="31" state="rGrG"/>
-#        <phase duration="6"  state="ryry"/>
-#    </tlLogic>
 
+import geopy.distance
 
+def add_vehicle(veh_index):
+    """
+    Add a vehicle to the network from the source of the network
+    """
+    #current_veh = traci.vehicle.getIDList()
+    traci.vehicle.addFull(vehID="veh" + str(veh_index), typeID="typeNS", route='route00')
 
-# def add_vehicle(index):
-#     #current_veh = traci.vehicle.getIDList()
-#     traci.vehicle.addFull(vehID="veh" + str(index), typeID="typeNS")
+def check_end(veh):
+    coords_1 = veh.getPosition()
+    edge_id = veh.getRoadID()
+    next_node = net.getEdge(edge_id).getToNode()
+    coords_2 = next_node.getCoord()
+    distance = geopy.distance.vincenty(coords_1, coords_2).m    #getDistance2D(x1, y1, x2, y2, isGeo=False, isDriving=False)
+    if distance < 0.5:
+        return True
+    return False
 
-# def closest_node(veh_id):
+#def closest_node(veh_id):
 
 
 
@@ -129,18 +111,16 @@ def run():
     step = 0
     # we start with phase 2 where EW has green
     #traci.trafficlight.setPhase("0", 2)
-    #For i in range(N):
-    while traci.simulation.getMinExpectedNumber() > 0:
-        # traci.vehicle.addFull(...)
+    For i in range(N):
+        random_num = random.uniform(0, 1)
+    #while traci.simulation.getMinExpectedNumber() > 0:
+        add_vehicle(i)
         traci.simulationStep()
-        # if traci.trafficlight.getPhase("0") == 2:
-        #     # we are not already switching
-        #     if traci.inductionloop.getLastStepVehicleNumber("0") > 0:
-        #         # there is a vehicle from the north, switch
-        #         traci.trafficlight.setPhase("0", 3)
-        #     else:
-        #         # otherwise try to keep green for EW
-        #         traci.trafficlight.setPhase("0", 2)
+        for veh in traci.getIDList():
+            if check_end(veh):
+                ###
+                if random_num is in []:   #the range for each route 
+                    traci.changeTarget(veh.getID(), )
 
         step += 1
     traci.close()
