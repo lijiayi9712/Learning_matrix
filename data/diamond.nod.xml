@@ -5,6 +5,7 @@
     <node id="N3" x="0.0" y="-100.0" />
     <node id="N4" x="250.0" y="0.0" />
     <node id="N5" x="100" y="-60.0" />
-    <node id="out" x="300.0" y="0.0" />
+    <node id="N6" x="300" y="0.0">
+    <node id="out" x="350.0" y="0.0" />
 </nodes>
 <!--type="allway_stop"-->
