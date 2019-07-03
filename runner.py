@@ -60,12 +60,17 @@ def gen_route(trans_matrix):
 
 
 def add_vehicle(veh_index, route_id):
-    traci.vehicle.addFull(vehID='veh{:06}'.format(veh_index), typeID='vehicle', route=route_id)
+    traci.vehicle.addFull(
+        vehID='veh{:06}'.format(veh_index),
+        routeID=route_id,
+        typeID='vehicle',
+        departSpeed=10,
+    )
 
 
 def step(veh_index, trans_matrix):
     route_id = gen_route(trans_matrix)
-    add_vehicle(veh_indx, route_idx)
+    add_vehicle(veh_index, route_id)
     traci.simulationStep()
 
 
