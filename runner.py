@@ -25,7 +25,7 @@ def init():
         '--output-file=data/diamond.net.xml'
     ]
     subprocess.run(netconvert_cmd)
-    sumoBinary = checkBinary('sumo')
+    sumoBinary = checkBinary('sumo-gui')
     traci.start([
         sumoBinary,
         '-c', 'data/diamond.sumocfg',
@@ -44,9 +44,10 @@ def gen_route(trans_matrix):
         '2to4',
         '3to5',
         '5to4',
-        '4to_out'
+        '4to6',
+        '6to_out'
     ]
-    while route[-1] != '4to_out':
+    while route[-1] != '6to_out':
         probs = trans_matrix[
             node_index*len(edge_list):(node_index+1)*len(edge_list)]
         next_edge = np.random.choice(edge_list, 1, p=probs)[0]
@@ -85,8 +86,8 @@ if __name__ == '__main__':
     p_13 = 0.5
     p_23 = 0.3
     p_24 = 0.7
-    p_35 = 1
-    p_54 = 1
+    p_35 = 1.0
+    p_54 = 1.0
     default_trans_matrix = np.array([
         [0.0, p_12, p_13, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         [0.0, 0.0, 0.0, p_23, p_24, 0.0, 0.0, 0.0, 0.0],
@@ -99,8 +100,9 @@ if __name__ == '__main__':
         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     ]).flatten()
 
-    duration = 3600  # number of steps
+    duration = 36000  # number of steps
     for t in range(duration):
-        step(t, default_trans_matrix)
+        if t % 100 == 0:
+            step(t, default_trans_matrix)
 
     close()
