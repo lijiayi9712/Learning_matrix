@@ -1,6 +1,0 @@
-<types>
-<type id="1L45" priority="1" numLanes="1" speech="45"/>
-<type id="3L45" priority="3" numLanes="3" speech="45"/>
-<type id="2L45" priority="3" numLanes="2" speech="45"/>
-<type id="3L30" priority="2" numLanes="3" speech="30"/>
-</types>

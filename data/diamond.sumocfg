@@ -1,0 +1,10 @@
+<configuration>
+    <input>
+        <net-file value="diamond.net.xml"/>
+        <route-files value="diamond.rou.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value = "20000"/>
+    </time>
+</configuration>
