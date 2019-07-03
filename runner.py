@@ -49,10 +49,10 @@ def gen_route(trans_matrix):
     while route[-1] != '4to_out':
         probs = trans_matrix[
             node_index*len(edge_list):(node_index+1)*len(edge_list)]
-        next_edge = np.random.choice(edges, 1, p=probs)[0]
+        next_edge = np.random.choice(edge_list, 1, p=probs)[0]
         route.append(next_edge)
-        node_index = edges.index(next_edge)
-    route_id = route.join('>')
+        node_index = edge_list.index(next_edge)
+    route_id = '>'.join(route)
     if route_id not in route_list:
         route_list.append(route_id)
         traci.route.add(route_id, route)
@@ -60,12 +60,17 @@ def gen_route(trans_matrix):
 
 
 def add_vehicle(veh_index, route_id):
-    traci.vehicle.addFull(vehID='veh{:06}'.format(veh_index), typeID='vehicle', route=route_id)
+    traci.vehicle.addFull(
+        vehID='veh{:06}'.format(veh_index),
+        routeID=route_id,
+        typeID='vehicle',
+        departSpeed=10,
+    )
 
 
 def step(veh_index, trans_matrix):
     route_id = gen_route(trans_matrix)
-    add_vehicle(veh_indx, route_idx)
+    add_vehicle(veh_index, route_id)
     traci.simulationStep()
 
 

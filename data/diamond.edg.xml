@@ -1,10 +1,10 @@
 <edges>
-    <edge from="in" id="in_to1" to="N1" type="1L45" />
-    <edge from="N1" id="1to2" to="N2" type="1L45" />
-    <edge from="N1" id="1to3" to="N3" type="1L45" />
-    <edge from="N2" id="2to4" to="N4" type="1L45" />
-    <edge from="N2" id="2toh3" to="N3" type="1L45" />
-    <edge from="N3" id="3to5" to="N5" type="2L45" />
-    <edge from="N5" id="5to4" to="N4" type="1L45" />
-    <edge from="N4" id="4to_out" to="out" type="1L45" />
+    <edge from="in" id="in_to1" to="N1" type="L1S25" />
+    <edge from="N1" id="1to2" to="N2" type="L1S25" />
+    <edge from="N1" id="1to3" to="N3" type="L1S25" />
+    <edge from="N2" id="2to4" to="N4" type="L1S25" />
+    <edge from="N2" id="2to3" to="N3" type="L1S25" />
+    <edge from="N3" id="3to5" to="N5" type="L2S25" />
+    <edge from="N5" id="5to4" to="N4" type="L1S25" />
+    <edge from="N4" id="4to_out" to="out" type="L2S25" />
 </edges>
