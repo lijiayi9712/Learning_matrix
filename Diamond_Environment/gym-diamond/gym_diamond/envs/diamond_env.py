@@ -31,7 +31,7 @@ import sumolib
 
 
 class diamondEnv(gym.Env):
-  metadata = {'render.modes': ['human']}
+    metadata = {'render.modes': ['human']}
 	def __init__(self):
 		self.reward = traci.getLastStepMeanSpeed(edgeID='6to_out')
 		self.next_state = 1#
@@ -89,7 +89,7 @@ class diamondEnv(gym.Env):
 	        routeID=route_id,
 	        typeID='vehicle',
 	        departSpeed=10,
-	    )  
+	    )
 
 
 	def step(self, veh_index, trans_matrix):
