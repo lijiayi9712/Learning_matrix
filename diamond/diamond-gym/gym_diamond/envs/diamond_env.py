@@ -1,7 +1,7 @@
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
-
+PATH = '/Users/LiJiayi/sumo/Learning_matrix/data'
 
 
 """
@@ -35,17 +35,17 @@ class DiamondEnv(gym.Env):
     def __init__(self):
         netconvert_cmd = [
             'netconvert',
-		    '--node-files=data/diamond.nod.xml',
-		    '--edge-files=data/diamond.edg.xml',
-		    '--type-files=data/diamond.type.xml',
-		    '--output-file=data/diamond.net.xml'
+		    '--node-files=' + PATH + '/diamond.nod.xml',
+		    '--edge-files=' + PATH + '/diamond.edg.xml',
+		    '--type-files=' + PATH + '/diamond.type.xml',
+		    '--output-file=' + PATH + '/diamond.net.xml'
 		]
         subprocess.run(netconvert_cmd)
         sumoBinary = checkBinary('sumo-gui')
         traci.start([
 	        sumoBinary,
-	        '-c', 'data/diamond.sumocfg',
-	        '--tripinfo-output', 'data/tripinfo.xml'
+	        '-c', PATH+'/diamond.sumocfg',
+	        '--tripinfo-output', PATH +'/tripinfo.xml'
 	    ])
         self.reward=1
         self.next_state=1

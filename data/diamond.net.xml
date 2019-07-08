@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Wed Jul  3 20:44:00 2019 by Eclipse SUMO netconvert Version v1_2_0+0765-3423b2ab8c
+<!-- generated on Mon Jul  8 16:02:25 2019 by Eclipse SUMO netconvert Version v1_2_0+0765-3423b2ab8c
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
 
     <input>
-        <node-files value="data/diamond.nod.xml"/>
-        <edge-files value="data/diamond.edg.xml"/>
-        <type-files value="data/diamond.type.xml"/>
+        <node-files value="/Users/LiJiayi/sumo/Learning_matrix/data/diamond.nod.xml"/>
+        <edge-files value="/Users/LiJiayi/sumo/Learning_matrix/data/diamond.edg.xml"/>
+        <type-files value="/Users/LiJiayi/sumo/Learning_matrix/data/diamond.type.xml"/>
     </input>
 
     <output>
-        <output-file value="data/diamond.net.xml"/>
+        <output-file value="/Users/LiJiayi/sumo/Learning_matrix/data/diamond.net.xml"/>
     </output>
 
 </configuration>
