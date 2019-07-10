@@ -9,7 +9,8 @@ np.random.seed(42)
 import subprocess
 import os
 import sys
-import inspect
+import time
+import atexit
 
 
 class DiamondEnv(gym.Env):
@@ -42,7 +43,29 @@ class DiamondEnv(gym.Env):
         self.additional=1
         self.route_list=[]
 
-    def gen_route(trans_matrix):
+        atexit.register(self.close)
+
+    def step(self, veh_index, trans_matrix):
+        route_id = gen_route(trans_matrix)
+        add_vehicle(veh_index, route_id)
+        traci.simulationStep()
+        return [self.next_state, self.reward, self.done, self.additional]
+		#TODO: return the next state,
+				#the reward for the current state,
+				# a boolean representing whether the current episode of our model is done
+				# some additional info on our problem
+
+    def reset(self):
+        traci.load()
+
+    def render(self):
+        raise NotImplementedError
+
+    def close(self):
+        traci.close()
+        print('\nEnvironment closed. Goodbye <コ:彡')
+
+    def _gen_route(trans_matrix):
 	    route = ['in_to1']
 	    node_index = 0
 	    edge_list = [
@@ -68,27 +91,10 @@ class DiamondEnv(gym.Env):
 	        traci.route.add(route_id, route)
 	    return route_id
 
-    def add_vehicle(veh_index, route_id):
+    def _add_vehicle(veh_index, route_id):
 	    traci.vehicle.addFull(
 	        vehID='veh{:06}'.format(veh_index),
 	        routeID=route_id,
 	        typeID='vehicle',
 	        departSpeed=10,
 	    )
-
-    def step(self, veh_index, trans_matrix):
-        route_id = gen_route(trans_matrix)
-        add_vehicle(veh_index, route_id)
-        traci.simulationStep()
-        return [self.next_state, self.reward, self.done, self.additional]
-		#TODO: return the next state,
-				#the reward for the current state,
-				# a boolean representing whether the current episode of our model is done
-				# some additional info on our problem
-
-
-    def reset(self):
-        traci.load()
-
-  # def render(self):
-  #   ...
