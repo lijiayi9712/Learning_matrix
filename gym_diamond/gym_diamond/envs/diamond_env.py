@@ -9,10 +9,14 @@ np.random.seed(42)
 import subprocess
 import os
 import sys
+import inspect
 
 
 class DiamondEnv(gym.Env):
     def __init__(self):
+        print('Initializing diamond network...')
+        path = os.path.dirname(__file__)
+
         if 'SUMO_HOME' in os.environ:
             tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
             sys.path.append(tools)
@@ -21,16 +25,16 @@ class DiamondEnv(gym.Env):
 
         netconvert_cmd = [
             'netconvert',
-		    '--node-files=data/diamond.nod.xml',
-		    '--edge-files=data/diamond.edg.xml',
-		    '--type-files=data/diamond.type.xml',
-		    '--output-file=data/diamond.net.xml'
+		    '--node-files={}/data/diamond.nod.xml'.format(path),
+		    '--edge-files={}/data/diamond.edg.xml'.format(path),
+		    '--type-files={}/data/diamond.type.xml'.format(path),
+		    '--output-file={}/data/diamond.net.xml'.format(path)
 		]
         subprocess.run(netconvert_cmd)
-        sumoBinary = checkBinary('sumo-gui')
+        sumoBinary = checkBinary('sumo')
         traci.start([
 	        sumoBinary,
-	        '-c', 'data/diamond.sumocfg'
+	        '-c', '{}/data/diamond.sumocfg'.format(path)
 	    ])
         self.reward=1
         self.next_state=1
