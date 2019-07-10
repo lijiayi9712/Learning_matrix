@@ -1,6 +1,7 @@
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
+from gym.spaces.box import Box
 import traci
 import sumolib
 from sumolib import checkBinary
@@ -15,7 +16,7 @@ import atexit
 
 class DiamondEnv(gym.Env):
     def __init__(self):
-        print('Initializing diamond network...')
+        print('Initializing diamond environment...')
         path = os.path.dirname(__file__)
 
         if 'SUMO_HOME' in os.environ:
@@ -32,31 +33,101 @@ class DiamondEnv(gym.Env):
 		    '--output-file={}/data/diamond.net.xml'.format(path)
 		]
         subprocess.run(netconvert_cmd)
-        sumoBinary = checkBinary('sumo')
-        traci.start([
+        sumoBinary = checkBinary('sumo-gui')
+        self.config = [
 	        sumoBinary,
 	        '-c', '{}/data/diamond.sumocfg'.format(path)
-	    ])
-        self.reward=1
-        self.next_state=1
-        self.done=1
-        self.additional=1
-        self.route_list=[]
+	    ]
+        traci.start(self.config)
+
+        self.edge_list = [
+            'in_to1',
+            '1to2',
+            '1to3',
+            '2to3',
+            '2to4',
+            '3to5',
+            '5to4',
+            '4to6',
+            '6to_out'
+        ]
+        self.route_list = []
+
+        self.step_count = 0
+        self.state = self.get_state()
+        self.observation = self.get_observation(self.state)
+        self.reward = self.get_reward(self.observation)
+        self.done = False
+        self.additional = None
 
         atexit.register(self.close)
 
-    def step(self, veh_index, trans_matrix):
-        route_id = gen_route(trans_matrix)
-        add_vehicle(veh_index, route_id)
+    def step(self, action):
+        p_1 = action[0]
+        p_2 = action[1]
+        trans_matrix = np.array([
+            [0.0, p_1, 1-p_1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, p_2, 1-p_2, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        ]).flatten()
+        self.step_count += 1
+
+        route_id = self._gen_route(trans_matrix)
+        veh_index = self.step_count
+        self._add_vehicle(veh_index, route_id)
         traci.simulationStep()
-        return [self.next_state, self.reward, self.done, self.additional]
-		#TODO: return the next state,
-				#the reward for the current state,
-				# a boolean representing whether the current episode of our model is done
-				# some additional info on our problem
+
+        self.state = self.get_state()
+        self.observation = self.get_observation(self.state)
+        self.reward = self.get_reward(self.observation)
+
+        return [self.observation, self.reward, self.done, self.additional]
+
+    def observation_space(self):
+        return Box(
+            low=0,
+            high=100, # This is arbitary
+            shape=(18,),
+            dtype=np.float32
+        )
+
+    def action_space(self):
+        return Box(
+            low=0,
+            high=1,
+            shape=(2,),
+            dtype=np.float32
+        )
+
+    def get_state(self):
+        state = []
+        for edge_id in self.edge_list:
+            state.append(traci.edge.getLastStepVehicleNumber(edge_id))
+            state.append(traci.edge.getLastStepMeanSpeed(edge_id))
+        return np.asarray(state)
+
+    def get_observation(self, state):
+        # State is fully observable
+        return state
+
+    def get_reward(self, observation):
+        return traci.edge.getLastStepMeanSpeed('6to_out')
 
     def reset(self):
-        traci.load()
+        traci.load(self.config[1:])
+        self.route_list = []
+        self.step_count = 0
+        self.state = self.get_state()
+        self.observation = self.get_observation(self.state)
+        self.reward = self.get_reward(self.observation)
+        self.done = False
+        self.additional = None
 
     def render(self):
         raise NotImplementedError
@@ -65,33 +136,24 @@ class DiamondEnv(gym.Env):
         traci.close()
         print('\nEnvironment closed. Goodbye <コ:彡')
 
-    def _gen_route(trans_matrix):
+    def _gen_route(self, trans_matrix):
 	    route = ['in_to1']
 	    node_index = 0
-	    edge_list = [
-	        'in_to1',
-	        '1to2',
-	        '1to3',
-	        '2to3',
-	        '2to4',
-	        '3to5',
-	        '5to4',
-	        '4to6',
-	        '6to_out'
-	    ]
 	    while route[-1] != '6to_out':
 	        probs = trans_matrix[
-	            node_index*len(edge_list):(node_index+1)*len(edge_list)]
-	        next_edge = np.random.choice(edge_list, 1, p=probs)[0]
+	            node_index*len(self.edge_list):\
+                (node_index+1)*len(self.edge_list)
+            ]
+	        next_edge = np.random.choice(self.edge_list, 1, p=probs)[0]
 	        route.append(next_edge)
-	        node_index = edge_list.index(next_edge)
+	        node_index = self.edge_list.index(next_edge)
 	    route_id = '>'.join(route)
 	    if route_id not in self.route_list:
 	        self.route_list.append(route_id)
 	        traci.route.add(route_id, route)
 	    return route_id
 
-    def _add_vehicle(veh_index, route_id):
+    def _add_vehicle(self, veh_index, route_id):
 	    traci.vehicle.addFull(
 	        vehID='veh{:06}'.format(veh_index),
 	        routeID=route_id,
