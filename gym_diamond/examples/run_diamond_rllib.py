@@ -22,7 +22,6 @@ class CustomModel(Model):
     """
 
     def _build_layers_v2(self, input_dict, num_outputs, options):
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Building custom model...')
         self.obs_in = input_dict["obs"]
         self.fcnet = FullyConnectedNetwork(input_dict, self.obs_space,
                                            self.action_space, num_outputs,
@@ -34,18 +33,18 @@ if __name__ == "__main__":
     # Can also register the env creator function explicitly with:
     # register_env("corridor", lambda config: SimpleCorridor(config))
     ray.init()
-    # ModelCatalog.register_custom_model("my_model", CustomModel)
+    ModelCatalog.register_custom_model("my_model", CustomModel)
     tune.run(
-        "PPO",
+        "PPO",  #TODO: To be defined
         stop={
-            "timesteps_total": 1e4,
+            "timesteps_total": 1e4,  #TODO: To be defined
         },
         config={
-            "env": DiamondEnv,
-            # "model": {
-            #     "custom_model": "my_model",
-            # },
-            "lr": 1e-2,
-            "num_workers": 1,
+            "env": DiamondEnv,  #TODO: To be defined
+            "model": {
+                "custom_model": "my_model",  #TODO: To be defined
+            },
+            "lr": 1e-2,  #TODO: To be defined
+            "num_workers": 1,  #TODO: To be defined
         },
     )
