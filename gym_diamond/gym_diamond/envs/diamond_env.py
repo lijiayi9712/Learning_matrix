@@ -15,9 +15,10 @@ import atexit
 
 
 class DiamondEnv(gym.Env):
-    def __init__(self):
+    def __init__(self, extra_config):
         print('Initializing diamond environment...')
         path = os.path.dirname(__file__)
+        self.extra_config = extra_config
 
         if 'SUMO_HOME' in os.environ:
             tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -33,7 +34,7 @@ class DiamondEnv(gym.Env):
 		    '--output-file={}/data/diamond.net.xml'.format(path)
 		]
         subprocess.run(netconvert_cmd)
-        sumoBinary = checkBinary('sumo-gui')
+        sumoBinary = checkBinary('sumo')
         self.config = [
 	        sumoBinary,
 	        '-c', '{}/data/diamond.sumocfg'.format(path)
@@ -53,12 +54,14 @@ class DiamondEnv(gym.Env):
         ]
         self.route_list = []
 
+        self.observation_space = self.get_observation_space()
+        self.action_space = self.get_action_space()
         self.step_count = 0
         self.state = self.get_state()
         self.observation = self.get_observation(self.state)
         self.reward = self.get_reward(self.observation)
         self.done = False
-        self.additional = None
+        self.additional = {}
 
         atexit.register(self.close)
 
@@ -87,9 +90,9 @@ class DiamondEnv(gym.Env):
         self.observation = self.get_observation(self.state)
         self.reward = self.get_reward(self.observation)
 
-        return [self.observation, self.reward, self.done, self.additional]
+        return self.observation, self.reward, self.done, self.additional
 
-    def observation_space(self):
+    def get_observation_space(self):
         return Box(
             low=0,
             high=100, # This is arbitary
@@ -97,7 +100,7 @@ class DiamondEnv(gym.Env):
             dtype=np.float32
         )
 
-    def action_space(self):
+    def get_action_space(self):
         return Box(
             low=0,
             high=1,
@@ -127,7 +130,8 @@ class DiamondEnv(gym.Env):
         self.observation = self.get_observation(self.state)
         self.reward = self.get_reward(self.observation)
         self.done = False
-        self.additional = None
+        self.additional = {}
+        return self.observation
 
     def render(self):
         raise NotImplementedError
