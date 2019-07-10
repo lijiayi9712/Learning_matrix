@@ -1,5 +1,0 @@
-gym_diamond.egg-info/PKG-INFO
-gym_diamond.egg-info/SOURCES.txt
-gym_diamond.egg-info/dependency_links.txt
-gym_diamond.egg-info/requires.txt
-gym_diamond.egg-info/top_level.txt

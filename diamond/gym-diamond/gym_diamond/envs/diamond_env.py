@@ -44,8 +44,7 @@ class DiamondEnv(gym.Env):
         sumoBinary = checkBinary('sumo-gui')
         traci.start([
 	        sumoBinary,
-	        '-c', PATH+'/diamond.sumocfg',
-	        '--tripinfo-output', PATH +'/tripinfo.xml'
+	        '-c', PATH+'/diamond.sumocfg'
 	    ])
         self.reward=1
         self.next_state=1
@@ -53,8 +52,6 @@ class DiamondEnv(gym.Env):
         self.additional=1
         self.route_list=[]
 
-  #def step(self, action):
-  
     def gen_route(trans_matrix):
 	    route = ['in_to1']
 	    node_index = 0
@@ -95,18 +92,13 @@ class DiamondEnv(gym.Env):
         add_vehicle(veh_index, route_id)
         traci.simulationStep()
         return [self.next_state, self.reward, self.done, self.additional]
-		#TODO: return the next state, 
-				#the reward for the current state, 
-				# a boolean representing whether the current episode of our model is done 
+		#TODO: return the next state,
+				#the reward for the current state,
+				# a boolean representing whether the current episode of our model is done
 				# some additional info on our problem
-	
+
 
     def reset(self):
         traci.load()
   # def render(self, mode='human', close=False):
   #   ...
-
-
-
-
-
