@@ -1,50 +1,36 @@
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
-PATH = '/Users/LiJiayi/sumo/Learning_matrix/data'
-
-
-"""
-======================
-imports from runner.py
-======================
-"""
-
-import subprocess
-import numpy as np
-import os
-import sys
-np.random.seed(42)  # make tests reproducible (TODO: check if this is indeed effective)
-
-if 'SUMO_HOME' in os.environ:
-    tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
-    sys.path.append(tools)
-else:
-    sys.exit('please declare environment variable "SUMO_HOME"')
-
-from sumolib import checkBinary
 import traci
 import sumolib
-
-
-
+from sumolib import checkBinary
+import numpy as np
+np.random.seed(42)
+import subprocess
+import os
+import sys
 
 
 class DiamondEnv(gym.Env):
-    metadata = {'render.modes': ['human']}
     def __init__(self):
+        if 'SUMO_HOME' in os.environ:
+            tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
+            sys.path.append(tools)
+        else:
+            sys.exit('please declare environment variable "SUMO_HOME"')
+
         netconvert_cmd = [
             'netconvert',
-		    '--node-files=' + PATH + '/diamond.nod.xml',
-		    '--edge-files=' + PATH + '/diamond.edg.xml',
-		    '--type-files=' + PATH + '/diamond.type.xml',
-		    '--output-file=' + PATH + '/diamond.net.xml'
+		    '--node-files=data/diamond.nod.xml',
+		    '--edge-files=data/diamond.edg.xml',
+		    '--type-files=data/diamond.type.xml',
+		    '--output-file=data/diamond.net.xml'
 		]
         subprocess.run(netconvert_cmd)
         sumoBinary = checkBinary('sumo-gui')
         traci.start([
 	        sumoBinary,
-	        '-c', PATH+'/diamond.sumocfg'
+	        '-c', 'data/diamond.sumocfg'
 	    ])
         self.reward=1
         self.next_state=1
@@ -78,7 +64,6 @@ class DiamondEnv(gym.Env):
 	        traci.route.add(route_id, route)
 	    return route_id
 
-
     def add_vehicle(veh_index, route_id):
 	    traci.vehicle.addFull(
 	        vehID='veh{:06}'.format(veh_index),
@@ -100,5 +85,6 @@ class DiamondEnv(gym.Env):
 
     def reset(self):
         traci.load()
-  # def render(self, mode='human', close=False):
+
+  # def render(self):
   #   ...
