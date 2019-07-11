@@ -15,10 +15,10 @@ import atexit
 
 
 class DiamondEnv(gym.Env):
-    def __init__(self, extra_config):
+    def __init__(self): #, extra_config
         print('Initializing diamond environment...')
         path = os.path.dirname(__file__)
-        self.extra_config = extra_config
+        #self.extra_config = extra_config
 
         if 'SUMO_HOME' in os.environ:
             tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -34,7 +34,7 @@ class DiamondEnv(gym.Env):
 		    '--output-file={}/data/diamond.net.xml'.format(path)
 		]
         subprocess.run(netconvert_cmd)
-        sumoBinary = checkBinary('sumo')
+        sumoBinary = checkBinary('sumo-gui')
         self.config = [
 	        sumoBinary,
 	        '-c', '{}/data/diamond.sumocfg'.format(path)
@@ -53,7 +53,7 @@ class DiamondEnv(gym.Env):
             '6to_out'
         ]
         self.route_list = []
-
+        self.net = sumolib.net.readNet('{}/data/diamond.net.xml'.format(path))
         self.observation_space = self.get_observation_space()
         self.action_space = self.get_action_space()
         self.step_count = 0
@@ -62,6 +62,7 @@ class DiamondEnv(gym.Env):
         self.reward = self.get_reward(self.observation)
         self.done = False
         self.additional = {}
+        
 
         atexit.register(self.close)
 
@@ -95,8 +96,8 @@ class DiamondEnv(gym.Env):
     def get_observation_space(self):
         return Box(
             low=0,
-            high=100, # This is arbitary
-            shape=(18,),
+            high=1000, # This is arbitary
+            shape=(27,),
             dtype=np.float32
         )
 
@@ -110,7 +111,8 @@ class DiamondEnv(gym.Env):
 
     def get_state(self):
         state = []
-        for edge_id in self.edge_list:
+        for edge_id in self.edge_list: 
+            state.append(self.net.getEdge(edge_id).getLength())
             state.append(traci.edge.getLastStepVehicleNumber(edge_id))
             state.append(traci.edge.getLastStepMeanSpeed(edge_id))
         return np.asarray(state)
@@ -120,7 +122,29 @@ class DiamondEnv(gym.Env):
         return state
 
     def get_reward(self, observation):
-        return traci.edge.getLastStepMeanSpeed('6to_out')
+        #return traci.edge.getLastStepMeanSpeed('6to_out')
+        return observation[-1]
+
+
+    def get_reward2(self, observation):
+        sum_over = 0
+        for i in range(len(self.edge_list)):
+            sum_over += (observation[i*3]/observation[i*3+2])*observation[i*3+1]
+        if sum_over != 0:
+            return 1/sum_over
+        else:
+            return sum_over
+
+    def get_reward3(self, observation):
+        upper = observation[1*3]/observation[1*3+2] + observation[4*3]/observation[4*3+2]
+        lower = observation[2*3]/observation[2*3+2] + observation[6*3]/observation[6*3+2]
+        short_cut = observation[1*3]/observation[1*3+2] + observation[3*3]/observation[3*3+2] + observation[6*3]/observation[6*3+2]
+        nash_val =  (upper - lower) * (upper - lower) + (short_cut - upper) * (short_cut - upper)
+        return nash_val
+
+
+
+
 
     def reset(self):
         traci.load(self.config[1:])

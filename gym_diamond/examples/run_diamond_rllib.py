@@ -29,6 +29,9 @@ class CustomModel(Model):
         return self.fcnet.outputs, self.fcnet.last_layer
 
 
+
+
+
 if __name__ == "__main__":
     # Can also register the env creator function explicitly with:
     # register_env("corridor", lambda config: SimpleCorridor(config))
@@ -37,14 +40,15 @@ if __name__ == "__main__":
     tune.run(
         "PPO",  #TODO: To be defined
         stop={
-            "timesteps_total": 1e4,  #TODO: To be defined
+            "timesteps_total": 1e6,  #TODO: To be defined
         },
         config={
             "env": DiamondEnv,  #TODO: To be defined
             "model": {
                 "custom_model": "my_model",  #TODO: To be defined
             },
-            "lr": 1e-2,  #TODO: To be defined
-            "num_workers": 1,  #TODO: To be defined
-        },
+            "lr": 1e-3,  #TODO: To be defined
+            "num_workers": 3,  #TODO: To be defined
+            
+        }
     )
