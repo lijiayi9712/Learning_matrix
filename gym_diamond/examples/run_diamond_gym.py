@@ -18,34 +18,57 @@ env = gym.make('diamond-v0')
 
 import matplotlib.pyplot as plt
 
-p1_list = np.arange(0, 1.05, 0.1)
-p2_list = np.arange(0, 1.05, 0.1)
+p1_list = np.arange(0, 1.05, 0.05)
+p2_list = np.arange(0, 1.05, 0.05)
 T = 100000
-N = 10
-reward_result = np.zeros((len(p1_list), len(p2_list), 10000, N))
+N = 5
+reward_result = np.zeros((len(p1_list), len(p2_list), 100, N))
+# for n in range(N):
+# 	for i_1, p_1 in np.ndenumerate(p1_list):
+# 		for i_2, p_2 in np.ndenumerate(p2_list):
+# 			for t in range(T):
+# 				if t % 100 == 0:
+# 					action = [p_1, p_2]
+# 					env.step(action)
+# 					states = env.get_state()
+# 					reward = env.get_reward(states)
+# 					reward_result[i_1, i_2, np.int(t/100), n] = reward
+# 			print("=")
+
+
+# print("Finished r1")
+# np.save('/Users/LiJiayi/sumo/Learning_matrix/gym_diamond/examples/reward_result.npy', reward_result)
+
+# reward_result2 = np.zeros((len(p1_list), len(p2_list), 100, N))
+# for n in range(N):
+# 	for i_1, p_1 in np.ndenumerate(p1_list):
+# 		for i_2, p_2 in np.ndenumerate(p2_list):
+# 			for t in range(T):
+# 				if t % 100 == 0:
+# 					action = [p_1, p_2]
+# 					env.step(action)
+# 					states = env.get_state()
+# 					reward = env.get_reward2(states)
+# 					reward_result2[i_1, i_2, np.int(t/100), n] = reward
+# 			print("=")
+
+# print("Finished r2")
+# np.save('/Users/LiJiayi/sumo/Learning_matrix/gym_diamond/examples/reward_result2.npy', reward_result2)
+
+reward_result3 = np.zeros((len(p1_list), len(p2_list), 100, N))
 for n in range(N):
 	for i_1, p_1 in np.ndenumerate(p1_list):
 		for i_2, p_2 in np.ndenumerate(p2_list):
 			for t in range(T):
-				if t % 100 == 0:
+				if t % 1000 == 0:
 					action = [p_1, p_2]
 					env.step(action)
-					states = env.get_state()
+					states = env.get_state( )
 					reward = env.get_reward3(states)
-					reward_result[i_1, i_2, np.int(t/100), n] = reward
-
-# print(reward_result[:, :, 0, 1])
-# ax = plt.axes(projection='3d')
-# x = p1_list
-# y = p2_list
-# z = reward_result[:, :, 5, :].mean(axis=2)
-
-# ax.contour3D(x, y, z, cmap=cm.coolwarm)
-# ax.set_xlabel('x')
-# ax.set_ylabel('y')
-# ax.set_zlabel('z');
+					reward_result3[i_1, i_2, np.int(t/1000), n] = reward
+			print("=========")
 
 
+print("Finished r3")
+np.save('/Users/LiJiayi/sumo/Learning_matrix/gym_diamond/examples/reward_result3.npy', reward_result3)
 
-# # plt.matshow(reward_result[:,:,50, 2])
-# plt.show()

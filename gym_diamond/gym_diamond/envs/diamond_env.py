@@ -34,7 +34,7 @@ class DiamondEnv(gym.Env):
 		    '--output-file={}/data/diamond.net.xml'.format(path)
 		]
         subprocess.run(netconvert_cmd)
-        sumoBinary = checkBinary('sumo-gui')
+        sumoBinary = checkBinary('sumo')
         self.config = [
 	        sumoBinary,
 	        '-c', '{}/data/diamond.sumocfg'.format(path)
