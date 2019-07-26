@@ -30,11 +30,12 @@ class DiamondEnv(gym.Env):
             '--output-file={}/data/diamond.net.xml'.format(path)
         ]
         subprocess.run(netconvert_cmd)
-        sumoBinary = checkBinary('sumo')
+        self.step_size = 0.1
+        sumoBinary = checkBinary('sumo-gui')
         self.config = [
             sumoBinary,
             '-c', '{}/data/diamond.sumocfg'.format(path),
-            '--step-length', '0.1',
+            '--step-length', '{:.2f}'.format(self.step_size),
             '--no-step-log'
         ]
         traci.start(self.config)
@@ -125,28 +126,31 @@ class DiamondEnv(gym.Env):
         return state
 
     def get_reward(self, observation, category='out'):
+        _SPEED_LIMIT = 25  # m/s
         if category == 'out':
-            return observation[-1]
+            return (observation[-2] + 1) / (observation[1] + 1)
         elif category == 'sum':
-            sum_over = 0
+            numerator = 0
+            denominator = 0
             for i in range(len(self.edge_list)):
-                sum_over += observation[i*3] / observation[i*3+2] * \
-                    observation[i*3+1]
-            if sum_over != 0:
-                return 1/sum_over
-            else:
-                return sum_over
+                length = observation[i*3+0]
+                flow = observation[i*3+1] + 1
+                speed = observation[i*3+2] + 0.1 * _SPEED_LIMIT
+                numerator += flow * length / speed
+                denominator += flow
+            return numerator / denominator
         elif category == 'nas':
-            upper = observation[1*3]/observation[1*3+2] + \
-                observation[4*3]/observation[4*3+2]
-            lower = observation[2*3]/observation[2*3+2] + \
-                observation[6*3]/observation[6*3+2]
-            short_cut = observation[1*3]/observation[1*3+2] + \
-                observation[3*3]/observation[3*3+2] + \
-                observation[6*3]/observation[6*3+2]
-            nash_val = (upper - lower) * (upper - lower) + \
-                (short_cut - upper) * (short_cut - upper)
-            return nash_val
+            upper_time = observation[4*3+0]/(observation[4*3+2] + 0.1 * _SPEED_LIMIT)
+            upper_flow = observation[4*3+1] + 1
+            middle_time = observation[3*3+0]/(observation[3*3+2] + 0.1 * _SPEED_LIMIT)
+            middle_flow = observation[3*3+1] + 1
+            lower_time = observation[2*3+0]/(observation[2*3+2] + 0.1 * _SPEED_LIMIT)
+            lower_flow = observation[2*3+1] + 1
+            min_time = np.min([upper_time, middle_time, lower_time])
+            time_array = [upper_time, middle_time, lower_time] - min_time
+            flow_array = [upper_flow, middle_flow, lower_flow]
+            nash = np.dot(flow_array, time_array) / np.sum(flow_array)
+            return nash
         else:
             raise ValueError(
                 'Reward can only be one of the following: "out", "sum", "nas".')
