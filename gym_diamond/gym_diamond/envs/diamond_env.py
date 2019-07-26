@@ -125,25 +125,30 @@ class DiamondEnv(gym.Env):
         return state
 
     def get_reward(self, observation, category='out'):
+        epsilon = 0.0001
         if category == 'out':
             return observation[-1]
         elif category == 'sum':
             sum_over = 0
             for i in range(len(self.edge_list)):
-                sum_over += observation[i*3] / observation[i*3+2] * \
-                    observation[i*3+1]
+                div = (observation[i*3+2] * \
+                    observation[i*3+1])
+                if div == 0:
+                    continue
+                sum_over += observation[i*3] / div
             if sum_over != 0:
                 return 1/sum_over
             else:
                 return sum_over
         elif category == 'nas':
-            upper = observation[1*3]/observation[1*3+2] + \
-                observation[4*3]/observation[4*3+2]
-            lower = observation[2*3]/observation[2*3+2] + \
-                observation[6*3]/observation[6*3+2]
-            short_cut = observation[1*3]/observation[1*3+2] + \
-                observation[3*3]/observation[3*3+2] + \
-                observation[6*3]/observation[6*3+2]
+
+            upper = observation[1*3]/(observation[1*3+2]+epsilon) + \
+                observation[4*3]/(observation[4*3+2]+epsilon)
+            lower = observation[2*3]/(observation[2*3+2]+epsilon) + \
+                observation[6*3]/(observation[6*3+2] + epsilon)
+            short_cut = observation[1*3]/(observation[1*3+2]+epsilon) + \
+                observation[3*3]/(observation[3*3+2]+epsilon) + \
+                observation[6*3]/(epsilon + observation[6*3+2])
             nash_val = (upper - lower) * (upper - lower) + \
                 (short_cut - upper) * (short_cut - upper)
             return nash_val

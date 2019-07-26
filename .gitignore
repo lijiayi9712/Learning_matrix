@@ -2,3 +2,8 @@
 __pycache__/
 *net.xml
 .idea
+gym_diamond/examples/data
+gym_diamond/examples/pics
+gym_diamond/examples/newpics
+
+*.mp4
