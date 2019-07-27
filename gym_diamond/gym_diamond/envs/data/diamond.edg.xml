@@ -2,10 +2,8 @@
     <edge from="E" id="E1" to="1" type="L1S25" />
     <edge from="1" id="12" to="2" type="L1S25" />
     <edge from="1" id="13" to="3" type="L1S25" />
-    <edge from="2" id="24" to="4" type="L1S25" />
+    <edge from="2" id="2X" to="X" type="L1S25" />
     <edge from="2" id="23" to="3" type="L1S25" />
-    <edge from="3" id="35" to="5" type="L2S25" />
-    <edge from="5" id="54" to="4" type="L1S25" />
-    <edge from="4" id="46" to="6" type="L2S25" />
-    <edge from="6" id="6X" to="X" type="L1S25" />
+    <edge from="3" id="34" to="4" type="L2S25" />
+    <edge from="4" id="4X" to="X" type="L1S25" />
 </edges>

@@ -11,10 +11,9 @@ import numpy as np
 # np.random.seed(42)
 
 class DiamondEnv(gym.Env):
-    def __init__(self): #, extra_config
+    def __init__(self):
         print('Initializing diamond environment...')
         path = os.path.dirname(__file__)
-        #self.extra_config = extra_confi
 
         if 'SUMO_HOME' in os.environ:
             tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -30,8 +29,8 @@ class DiamondEnv(gym.Env):
             '--output-file={}/data/diamond.net.xml'.format(path)
         ]
         subprocess.run(netconvert_cmd)
-        self.step_size = 0.1
-        sumoBinary = checkBinary('sumo-gui')
+        self.step_size = 0.5
+        sumoBinary = checkBinary('sumo')
         self.config = [
             sumoBinary,
             '-c', '{}/data/diamond.sumocfg'.format(path),
@@ -45,11 +44,9 @@ class DiamondEnv(gym.Env):
             '12',
             '13',
             '23',
-            '24',
-            '35',
-            '54',
-            '46',
-            '6X'
+            '2X',
+            '34',
+            '4X'
         ]
         self.route_list = []
         self.net = sumolib.net.readNet('{}/data/diamond.net.xml'.format(path))
@@ -70,16 +67,14 @@ class DiamondEnv(gym.Env):
         p23 = action[1]
         p24 = 1 - p23
         trans_matrix = np.array([
-            # E1   12   13   23   24   35   54   46   6X
-            [0.0, p12, p13, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # E1
-            [0.0, 0.0, 0.0, p23, p24, 0.0, 0.0, 0.0, 0.0],  # 12
-            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],  # 13
-            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],  # 23
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],  # 24
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],  # 35
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],  # 54
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],  # 46
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]   # 6X
+            # E1   12   13   23   2X   34   4X
+            [0.0, p12, p13, 0.0, 0.0, 0.0, 0.0],  # E1
+            [0.0, 0.0, 0.0, p23, p24, 0.0, 0.0],  # 12
+            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],  # 13
+            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],  # 23
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # 2X
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],  # 34
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # 4X
         ]).flatten()
         self.step_count += 1
 
@@ -128,29 +123,29 @@ class DiamondEnv(gym.Env):
     def get_reward(self, observation, category='out'):
         _SPEED_LIMIT = 25  # m/s
         if category == 'out':
-            return (observation[-2] + 1) / (observation[1] + 1)
+            return (observation[4*3+1] + observation[6*3+1]) / self.step_size
         elif category == 'sum':
             numerator = 0
             denominator = 0
             for i in range(len(self.edge_list)):
                 length = observation[i*3+0]
-                flow = observation[i*3+1] + 1
+                flow = (observation[i*3+1] + 1) / self.step_size
                 speed = observation[i*3+2] + 0.1 * _SPEED_LIMIT
-                numerator += flow * length / speed
-                denominator += flow
+                denominator += flow * length / speed
+                numerator += flow
             return numerator / denominator
         elif category == 'nas':
             upper_time = observation[4*3+0]/(observation[4*3+2] + 0.1 * _SPEED_LIMIT)
-            upper_flow = observation[4*3+1] + 1
+            upper_flow = (observation[4*3+1] + 1) / self.step_size
             middle_time = observation[3*3+0]/(observation[3*3+2] + 0.1 * _SPEED_LIMIT)
-            middle_flow = observation[3*3+1] + 1
+            middle_flow = (observation[3*3+1] + 1) / self.step_size
             lower_time = observation[2*3+0]/(observation[2*3+2] + 0.1 * _SPEED_LIMIT)
-            lower_flow = observation[2*3+1] + 1
+            lower_flow = (observation[2*3+1] + 1) / self.step_size
             min_time = np.min([upper_time, middle_time, lower_time])
             time_array = [upper_time, middle_time, lower_time] - min_time
             flow_array = [upper_flow, middle_flow, lower_flow]
             nash = np.dot(flow_array, time_array) / np.sum(flow_array)
-            return nash
+            return 1 / nash
         else:
             raise ValueError(
                 'Reward can only be one of the following: "out", "sum", "nas".')
@@ -176,7 +171,7 @@ class DiamondEnv(gym.Env):
     def _gen_route(self, trans_matrix):
         route = ['E1']
         node_index = 0
-        while route[-1] != '6X':
+        while 'X' not in route[-1]:
             probs = trans_matrix[
                 node_index*len(self.edge_list):
                 (node_index+1)*len(self.edge_list)

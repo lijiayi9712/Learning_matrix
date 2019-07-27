@@ -9,7 +9,8 @@ def run_tests(duration, seed):
     env = gym.make('diamond-v0')
 
     rewards = []
-    search_points = np.linspace(0.0, 1.0, 21)
+    observations = []
+    search_points = np.linspace(0.0, 1.0, 11)
     for p12 in search_points:
         for p23 in search_points:
             env.reset()
@@ -18,10 +19,13 @@ def run_tests(duration, seed):
                 rewards.append(env.get_reward(obs, category='out'))
                 rewards.append(env.get_reward(obs, category='sum'))
                 rewards.append(env.get_reward(obs, category='nas'))
-    rewards = np.asarray(rewards)
-    rewards = rewards.reshape(
+                observations.append(obs)
+    rewards = np.asarray(rewards).reshape(
         len(search_points), len(search_points), duration, 3)
     np.save('rewards_{}step_seed{:02d}.npy'.format(duration, seed), rewards)
+    observations = np.asarray(observations).reshape(
+        len(search_points), len(search_points), duration, len(obs))
+    np.save('observations_{}step_seed{:02d}.npy'.format(duration, seed), observations)
 
 
 if __name__ == '__main__':

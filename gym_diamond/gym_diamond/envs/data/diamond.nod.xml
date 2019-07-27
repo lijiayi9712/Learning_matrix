@@ -3,9 +3,7 @@
     <node id="1" x="-250.0" y="0.0" />
     <node id="2" x="0.0" y="100.0" />
     <node id="3" x="0.0" y="-100.0" />
-    <node id="4" x="250.0" y="0.0" />
-    <node id="5" x="100" y="-60.0" />
-    <node id="6" x="325" y="0.0" />
-    <node id="X" x="400.0" y="0.0" />
+    <node id="4" x="100" y="-60.0" type="zipper"/>
+    <node id="X" x="250.0" y="0.0" />
 </nodes>
 <!--type="allway_stop"-->
