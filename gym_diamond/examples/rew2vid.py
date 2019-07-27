@@ -6,6 +6,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import numpy as np
 import argparse
 import cv2
+from vis_diamond_gym import vis_tests
 
 
 plt.rcParams["font.family"] = "Arial"
@@ -13,7 +14,7 @@ plt.rcParams["font.family"] = "Arial"
 env = gym.make('diamond-v0')
 
 
-def rew2img(rewards, t=25):
+def rew2frm(rewards, t=25):
     fig = plt.figure(figsize=(12, 2.5))
     canvas = FigureCanvas(fig)
 
@@ -99,14 +100,14 @@ if __name__ == '__main__':
         )
         rewards.append(_rewards)
     rewards = np.asarray(rewards).mean(axis=0)
-    print(rewards.shape)
-    img = rew2img(rewards, 25)
+
+    frm = rew2frm(rewards, 25)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter('vid.mp4', fourcc, 30, (img.shape[1], img.shape[0]))
+    out = cv2.VideoWriter('vid.mp4', fourcc, 30, (frm.shape[1], frm.shape[0]))
     for t in range(25, rewards.shape[-2]-24):
-        img = rew2img(rewards, t)[:, :, ::-1]
-        out.write(img)
-        cv2.imshow('Vid', img)
+        frm = rew2frm(rewards, t)[:, :, ::-1]
+        out.write(frm)
+        cv2.imshow('Vid', frm)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     out.release()
