@@ -37,7 +37,7 @@ def vis_tests(duration, seed):
             div = make_axes_locatable(ax)
             cax = div.append_axes('right', size='5%', pad=0.05)
             im = ax.imshow(
-                rewards[:, :, t-25:t+24, x].mean(axis=-1),
+                rewards[:, :, t-25:t+25, x].mean(axis=-1),
                 vmin=0,
                 vmax=rewards[:, :, :, x].mean() + rewards[:, :, :, x].std(),
                 cmap='RdYlGn'

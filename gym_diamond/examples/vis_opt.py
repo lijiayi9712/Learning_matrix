@@ -2,21 +2,15 @@ import gym
 import gym_diamond
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import numpy as np
 import argparse
-import cv2
-from vis_diamond_gym import vis_tests
 
 
 plt.rcParams["font.family"] = "Arial"
-# check_points = [75, 475, 975, 4975, 9975]
-env = gym.make('diamond-v0')
 
 
-def rew2frm(rewards, t=25):
+def show_traj(rewards, trajs, t=975):
     fig = plt.figure(figsize=(12, 2.5))
-    canvas = FigureCanvas(fig)
 
     for x in range(rewards.shape[-1]):
         ax = fig.add_subplot(
@@ -47,24 +41,48 @@ def rew2frm(rewards, t=25):
             orientation='vertical',
             # format='%.2e'
         )
+        ax.quiver(
+            trajs[:, x, 0] * 10,
+            trajs[:, x, 1] * 10,
+            trajs[:, x, 2] * 10,
+            trajs[:, x, 3] * 10,
+            scale_units='xy',
+            angles='xy',
+            scale=1,
+            linewidths=3
+        )
+        ax.scatter(
+            [trajs[0, x, 0] * 10],
+            [trajs[0, x, 1] * 10],
+            marker='o',
+            s=25,
+            color='m'
+        )
+        ax.scatter(
+            [(trajs[-1, x, 0] + trajs[-1, x, 2]) * 10],
+            [(trajs[-1, x, 1] + trajs[-1, x, 3]) * 10],
+            marker='*',
+            s=75,
+            color='m'
+        )
         if x == 0:
-            ax.set_title('Average Outflow')
             cbar.set_label(
-                'Rew (veh/s) at t = {} s'.format(t*env.step_size),
+                'Avg OF (veh/s) at t = {} s'.
+                    format(t*env.step_size),
                 rotation=270,
                 labelpad=10
             )
         elif x == 1:
-            ax.set_title('Inverted Travel Time')
             cbar.set_label(
-                'Rew (1/s) at t = {} s'.format(t*env.step_size),
+                'Inverted TT (1/s) at t = {} s'.
+                    format(t*env.step_size),
                 rotation=270,
                 labelpad=10
             )
         else:
-            ax.set_title('Nash Equilibrium')
             cbar.set_label(
-                'Rew (1/s) at t = {} s'.format(t*env.step_size),
+                'Nash Eq (1/s) at t = {} s'.
+                    format(t*env.step_size),
                 rotation=270,
                 labelpad=10
             )
@@ -72,13 +90,7 @@ def rew2frm(rewards, t=25):
         ax.set_ylabel('p12')
 
     plt.tight_layout()
-    canvas.draw()
-    width, height = fig.get_size_inches() * fig.get_dpi()
-    img =  np.fromstring(
-        canvas.tostring_rgb(), dtype='uint8').\
-        reshape(int(height), int(width), 3)
-    plt.close()
-    return img
+    plt.savefig('{}.png'.format(args.optimizer))
 
 
 if __name__ == '__main__':
@@ -90,8 +102,22 @@ if __name__ == '__main__':
         type=int,
         default=1000
     )
+    parser.add_argument(
+        '-o',
+        '--optimizer',
+        help='Specify optimizer of trajectories.',
+        type=str,
+        default='random_search'
+    )
     args = parser.parse_args()
+    if args.optimizer not in ['random_search', 'gradient_ascent']:
+        raise ValueError(
+            'Optmizer must be one of the following: ' +
+            '"random_search" or "gradient_ascent".')
 
+    env = gym.make('diamond-v0')
+
+    trajs = np.load('trajs_{}.npy'.format(args.optimizer))
     rewards = []
     for seed in range(10):
         _rewards = np.load(
@@ -101,14 +127,4 @@ if __name__ == '__main__':
         rewards.append(_rewards)
     rewards = np.asarray(rewards).mean(axis=0)
 
-    frm = rew2frm(rewards, 25)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter('vid.mp4', fourcc, 30, (frm.shape[1], frm.shape[0]))
-    for t in range(25, rewards.shape[-2]-25):
-        frm = rew2frm(rewards, t)[:, :, ::-1]
-        out.write(frm)
-        cv2.imshow('Vid', frm)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    out.release()
-    cv2.destroyAllWindows()
+    show_traj(rewards, trajs, t=975)
