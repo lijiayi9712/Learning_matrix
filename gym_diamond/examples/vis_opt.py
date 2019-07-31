@@ -59,7 +59,7 @@ def show_traj(rewards, trajs, t=975):
                 [trajs[0, x, 1] * 20],
                 marker='o',
                 s=25,
-                color='m'
+                color='r'
             )
         else:
             ax.scatter(
@@ -67,7 +67,7 @@ def show_traj(rewards, trajs, t=975):
                 [trajs[:, x, 1] * 20],
                 marker='o',
                 s=5,
-                color='m'
+                color='r'
             )
         ax.scatter(
             [(trajs[-1, x, 0] + trajs[-1, x, 2]) * 20],
