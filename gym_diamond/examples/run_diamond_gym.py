@@ -10,7 +10,7 @@ def run_tests(duration, seed):
 
     rewards = []
     observations = []
-    search_points = np.linspace(0.0, 1.0, 11)
+    search_points = np.linspace(0.0, 1.0, 21)
     for p12 in search_points:
         for p23 in search_points:
             env.reset()

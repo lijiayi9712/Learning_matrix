@@ -6,11 +6,12 @@ import numpy as np
 import argparse
 
 
-plt.rcParams["font.family"] = "Arial"
+plt.rcParams['font.family'] = 'Arial'
+plt.rcParams['font.size'] = 14
 
 
 def show_traj(rewards, trajs, t=975):
-    fig = plt.figure(figsize=(12, 2.5))
+    fig = plt.figure(figsize=(12, 3.25))
 
     for x in range(rewards.shape[-1]):
         ax = fig.add_subplot(
@@ -18,10 +19,10 @@ def show_traj(rewards, trajs, t=975):
             rewards.shape[-1],
             x + 1
         )
-        ticks = np.linspace(0, rewards.shape[0]-1, 11)
+        ticks = np.linspace(0, rewards.shape[0]-1, 6)
         ticklabels = [
-            '{:.2f}'.format(i/(10))
-            for i in range(11)
+            '{:.2f}'.format(i/5)
+            for i in range(6)
         ]
         ax.set_xticks(ticks)
         ax.set_xticklabels(ticklabels, rotation=45, ha='center')
@@ -42,55 +43,59 @@ def show_traj(rewards, trajs, t=975):
             # format='%.2e'
         )
         ax.quiver(
-            trajs[:, x, 0] * 10,
-            trajs[:, x, 1] * 10,
-            trajs[:, x, 2] * 10,
-            trajs[:, x, 3] * 10,
+            trajs[:, x, 0] * 20,
+            trajs[:, x, 1] * 20,
+            trajs[:, x, 2] * 20,
+            trajs[:, x, 3] * 20,
             scale_units='xy',
             angles='xy',
             scale=1,
             linewidths=3
         )
         ax.scatter(
-            [trajs[0, x, 0] * 10],
-            [trajs[0, x, 1] * 10],
+            [trajs[0, x, 0] * 20],
+            [trajs[0, x, 1] * 20],
             marker='o',
             s=25,
             color='m'
         )
         ax.scatter(
-            [(trajs[-1, x, 0] + trajs[-1, x, 2]) * 10],
-            [(trajs[-1, x, 1] + trajs[-1, x, 3]) * 10],
+            [(trajs[-1, x, 0] + trajs[-1, x, 2]) * 20],
+            [(trajs[-1, x, 1] + trajs[-1, x, 3]) * 20],
             marker='*',
             s=75,
             color='m'
         )
         if x == 0:
             cbar.set_label(
-                'Avg OF (veh/s) at t = {} s'.
-                    format(t*env.step_size),
+                'Reward (veh/s) at t = {} s'.
+                    format(t * env.step_size),
                 rotation=270,
                 labelpad=10
             )
+            ax.set_title('Average Outflow')
         elif x == 1:
             cbar.set_label(
-                'Inverted TT (1/s) at t = {} s'.
-                    format(t*env.step_size),
+                'Reward (1/s) at t = {} s'.
+                    format(t * env.step_size),
                 rotation=270,
                 labelpad=10
             )
+            ax.set_title('Inverse Travel Time')
         else:
             cbar.set_label(
-                'Nash Eq (1/s) at t = {} s'.
-                    format(t*env.step_size),
+                'Reward (1/s) at t = {} s'.
+                    format(t * env.step_size),
                 rotation=270,
                 labelpad=10
             )
-        ax.set_xlabel('p23')
-        ax.set_ylabel('p12')
+            ax.set_title('Nash Distance')
+        ax.set_xlabel(r'$p_{BC}$')
+        ax.set_ylabel(r'$p_{AB}$')
 
     plt.tight_layout()
-    plt.savefig('{}.png'.format(args.optimizer))
+    plt.savefig(
+        'figures/{}.pdf'.format(args.optimizer))
 
 
 if __name__ == '__main__':

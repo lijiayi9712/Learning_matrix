@@ -9,13 +9,14 @@ import cv2
 from vis_diamond_gym import vis_tests
 
 
-plt.rcParams["font.family"] = "Arial"
+plt.rcParams['font.family'] = 'Arial'
+plt.rcParams['font.size'] = 14
 # check_points = [75, 475, 975, 4975, 9975]
 env = gym.make('diamond-v0')
 
 
 def rew2frm(rewards, t=25):
-    fig = plt.figure(figsize=(12, 2.5))
+    fig = plt.figure(figsize=(12, 3.25))
     canvas = FigureCanvas(fig)
 
     for x in range(rewards.shape[-1]):
@@ -24,10 +25,10 @@ def rew2frm(rewards, t=25):
             rewards.shape[-1],
             x + 1
         )
-        ticks = np.linspace(0, rewards.shape[0]-1, 11)
+        ticks = np.linspace(0, rewards.shape[0]-1, 6)
         ticklabels = [
-            '{:.2f}'.format(i/(10))
-            for i in range(11)
+            '{:.2f}'.format(i/(5))
+            for i in range(6)
         ]
         ax.set_xticks(ticks)
         ax.set_xticklabels(ticklabels, rotation=45, ha='center')
@@ -48,28 +49,28 @@ def rew2frm(rewards, t=25):
             # format='%.2e'
         )
         if x == 0:
+            cbar.set_label(
+                'Reward (veh/s) at t = {} s'.format(t*env.step_size),
+                rotation=270,
+                labelpad=10
+            )
             ax.set_title('Average Outflow')
-            cbar.set_label(
-                'Rew (veh/s) at t = {} s'.format(t*env.step_size),
-                rotation=270,
-                labelpad=10
-            )
         elif x == 1:
-            ax.set_title('Inverted Travel Time')
             cbar.set_label(
-                'Rew (1/s) at t = {} s'.format(t*env.step_size),
+                'Reward (1/s) at t = {} s'.format(t*env.step_size),
                 rotation=270,
                 labelpad=10
             )
+            ax.set_title('Inverse Travel Time')
         else:
-            ax.set_title('Nash Equilibrium')
             cbar.set_label(
-                'Rew (1/s) at t = {} s'.format(t*env.step_size),
+                'Reward (1/s) at t = {} s'.format(t*env.step_size),
                 rotation=270,
                 labelpad=10
             )
-        ax.set_xlabel('p23')
-        ax.set_ylabel('p12')
+            ax.set_title('Nash Distance')
+        ax.set_xlabel(r'$p_{BC}$')
+        ax.set_ylabel(r'$p_{AB}$')
 
     plt.tight_layout()
     canvas.draw()
@@ -103,7 +104,8 @@ if __name__ == '__main__':
 
     frm = rew2frm(rewards, 25)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter('vid.mp4', fourcc, 30, (frm.shape[1], frm.shape[0]))
+    out = cv2.VideoWriter(
+        'figures/vid.mp4', fourcc, 30, (frm.shape[1], frm.shape[0]))
     for t in range(25, rewards.shape[-2]-25):
         frm = rew2frm(rewards, t)[:, :, ::-1]
         out.write(frm)

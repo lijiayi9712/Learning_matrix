@@ -6,13 +6,14 @@ import numpy as np
 import argparse
 
 
-plt.rcParams["font.family"] = "Arial"
+plt.rcParams['font.family'] = 'Arial'
+plt.rcParams['font.size'] = 14
 check_points = [75, 175, 575, 775, 975]
 env = gym.make('diamond-v0')
 
 
 def rew2img(duration, rewards):
-    fig = plt.figure(figsize=(12, 2.5*len(check_points)))
+    fig = plt.figure(figsize=(12, 3.25*len(check_points)))
 
     for y, t in enumerate(check_points):
         for x in range(rewards.shape[-1]):
@@ -21,10 +22,10 @@ def rew2img(duration, rewards):
                 rewards.shape[-1],
                 y * rewards.shape[-1] + x + 1
             )
-            ticks = np.linspace(0, rewards.shape[0]-1, 11)
+            ticks = np.linspace(0, rewards.shape[0]-1, 6)
             ticklabels = [
-                '{:.2f}'.format(i/(10))
-                for i in range(11)
+                '{:.2f}'.format(i/5)
+                for i in range(6)
             ]
             ax.set_xticks(ticks)
             ax.set_xticklabels(ticklabels, rotation=45, ha='center')
@@ -46,30 +47,34 @@ def rew2img(duration, rewards):
             )
             if x == 0:
                 cbar.set_label(
-                    'Avg OF (veh/s) at t = {} s'.
+                    'Reward (veh/s) at t = {} s'.
                         format(check_points[y]*env.step_size),
                     rotation=270,
                     labelpad=10
                 )
+                ax.set_title('Average Outflow')
             elif x == 1:
                 cbar.set_label(
-                    'Inverted TT (1/s) at t = {} s'.
+                    'Reward (1/s) at t = {} s'.
                         format(check_points[y]*env.step_size),
                     rotation=270,
                     labelpad=10
                 )
+                ax.set_title('Inverse Travel Time')
             else:
                 cbar.set_label(
-                    'Nash Eq (1/s) at t = {} s'.
+                    'Reward (1/s) at t = {} s'.
                         format(check_points[y]*env.step_size),
                     rotation=270,
                     labelpad=10
                 )
-            ax.set_xlabel('p23')
-            ax.set_ylabel('p12')
+                ax.set_title('Nash Distance')
+            ax.set_xlabel(r'$p_{BC}$')
+            ax.set_ylabel(r'$p_{AB}$')
 
     plt.tight_layout()
-    plt.savefig('rewards_{}step_average.png'.format(duration))
+    plt.savefig(
+        'figures/rewards_{}step_average.pdf'.format(duration))
 
 
 if __name__ == '__main__':
