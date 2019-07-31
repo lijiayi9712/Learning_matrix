@@ -59,29 +59,29 @@ def show_traj(rewards, trajs, t=975):
                 [trajs[0, x, 1] * 20],
                 marker='o',
                 s=25,
-                color='r'
+                color='k'
             )
         else:
             ax.scatter(
-                [trajs[:, x, 0] * 20],
-                [trajs[:, x, 1] * 20],
+                [trajs[:-1, x, 0] * 20],
+                [trajs[:-1, x, 1] * 20],
                 marker='o',
                 s=5,
-                color='r'
+                color='k'
             )
         ax.scatter(
             [(trajs[-1, x, 0] + trajs[-1, x, 2]) * 20],
             [(trajs[-1, x, 1] + trajs[-1, x, 3]) * 20],
             marker='+',
             s=75,
-            color='r'
+            color='k'
         )
         ax.scatter(
             np.where(avg_rewards == avg_rewards.max())[1],
             np.where(avg_rewards == avg_rewards.max())[0],
             marker='*',
             s=75,
-            color='r'
+            color='k'
         )
         if x == 0:
             cbar.set_label(
