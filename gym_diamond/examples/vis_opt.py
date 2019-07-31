@@ -30,6 +30,7 @@ def show_traj(rewards, trajs, t=975):
         ax.set_yticklabels(ticklabels)
         div = make_axes_locatable(ax)
         cax = div.append_axes('right', size='5%', pad=0.05)
+        avg_rewards = rewards[:, :, t-25:t+25, x].mean(axis=-1)
         im = ax.imshow(
             rewards[:, :, t-25:t+25, x].mean(axis=-1),
             vmin=0,
@@ -42,36 +43,52 @@ def show_traj(rewards, trajs, t=975):
             orientation='vertical',
             # format='%.2e'
         )
-        ax.quiver(
-            trajs[:, x, 0] * 20,
-            trajs[:, x, 1] * 20,
-            trajs[:, x, 2] * 20,
-            trajs[:, x, 3] * 20,
-            scale_units='xy',
-            angles='xy',
-            scale=1,
-            linewidths=3
-        )
-        ax.scatter(
-            [trajs[0, x, 0] * 20],
-            [trajs[0, x, 1] * 20],
-            marker='o',
-            s=25,
-            color='m'
-        )
+        if args.optimizer == 'gradient_ascent':
+            ax.quiver(
+                trajs[:, x, 0] * 20,
+                trajs[:, x, 1] * 20,
+                trajs[:, x, 2] * 20,
+                trajs[:, x, 3] * 20,
+                scale_units='xy',
+                angles='xy',
+                scale=1,
+                linewidths=3
+            )
+            ax.scatter(
+                [trajs[0, x, 0] * 20],
+                [trajs[0, x, 1] * 20],
+                marker='o',
+                s=25,
+                color='m'
+            )
+        else:
+            ax.scatter(
+                [trajs[:, x, 0] * 20],
+                [trajs[:, x, 1] * 20],
+                marker='o',
+                s=5,
+                color='m'
+            )
         ax.scatter(
             [(trajs[-1, x, 0] + trajs[-1, x, 2]) * 20],
             [(trajs[-1, x, 1] + trajs[-1, x, 3]) * 20],
+            marker='+',
+            s=75,
+            color='r'
+        )
+        ax.scatter(
+            np.where(avg_rewards == avg_rewards.max())[1],
+            np.where(avg_rewards == avg_rewards.max())[0],
             marker='*',
             s=75,
-            color='m'
+            color='r'
         )
         if x == 0:
             cbar.set_label(
                 'Reward (veh/s) at t = {} s'.
                     format(t * env.step_size),
                 rotation=270,
-                labelpad=10
+                labelpad=15
             )
             ax.set_title('Average Outflow')
         elif x == 1:
@@ -79,7 +96,7 @@ def show_traj(rewards, trajs, t=975):
                 'Reward (1/s) at t = {} s'.
                     format(t * env.step_size),
                 rotation=270,
-                labelpad=10
+                labelpad=15
             )
             ax.set_title('Inverse Travel Time')
         else:
@@ -87,9 +104,9 @@ def show_traj(rewards, trajs, t=975):
                 'Reward (1/s) at t = {} s'.
                     format(t * env.step_size),
                 rotation=270,
-                labelpad=10
+                labelpad=15
             )
-            ax.set_title('Nash Distance')
+            ax.set_title('Inverse Nash Distance')
         ax.set_xlabel(r'$p_{BC}$')
         ax.set_ylabel(r'$p_{AB}$')
 

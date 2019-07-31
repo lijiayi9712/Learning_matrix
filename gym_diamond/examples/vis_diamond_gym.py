@@ -54,7 +54,7 @@ def vis_tests(duration, seed):
                     'Reward (veh/s) at t = {} s'.
                         format(check_points[y]*env.step_size),
                     rotation=270,
-                    labelpad=10
+                    labelpad=15
                 )
                 ax.set_title('Average Outflow')
             elif x == 1:
@@ -62,7 +62,7 @@ def vis_tests(duration, seed):
                     'Reward (1/s) at t = {} s'.
                         format(check_points[y]*env.step_size),
                     rotation=270,
-                    labelpad=10
+                    labelpad=15
                 )
                 ax.set_title('Inverse Travel Time')
             else:
@@ -70,9 +70,9 @@ def vis_tests(duration, seed):
                     'Reward (1/s) at t = {} s'.
                         format(check_points[y]*env.step_size),
                     rotation=270,
-                    labelpad=10
+                    labelpad=15
                 )
-                ax.set_title('Nash Distance')
+                ax.set_title('Inverse Nash Distance')
             ax.set_xlabel(r'$p_{BC}$')
             ax.set_ylabel(r'$p_{AB}$')
 

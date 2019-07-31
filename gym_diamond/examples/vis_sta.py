@@ -98,23 +98,23 @@ if __name__ == '__main__':
             cbar.set_label(
                 'Reward (veh/s) at equilibrium',
                 rotation=270,
-                labelpad=10
+                labelpad=15
             )
             ax.set_title('Average Outflow')
         elif x == 1:
             cbar.set_label(
                 'Reward (1/s) at equilibrium',
                 rotation=270,
-                labelpad=10
+                labelpad=15
             )
             ax.set_title('Inverse Travel Time')
         else:
             cbar.set_label(
                 'Reward (1/s) at equilibrium',
                 rotation=270,
-                labelpad=10
+                labelpad=15
             )
-            ax.set_title('Nash Distance')
+            ax.set_title('Inverse Nash Distance')
         ax.set_xlabel(r'$p_{BC}$')
         ax.set_ylabel(r'$p_{AB}$')
 

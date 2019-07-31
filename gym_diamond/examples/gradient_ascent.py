@@ -46,7 +46,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     seed = 204
-    iteration = 100
+    iteration = 50
     sample_number = 10
     np.random.seed(seed)
     env = gym.make('diamond-v0')
@@ -67,7 +67,7 @@ if __name__ == '__main__':
                 x_out,
                 y_out,
                 category='out',
-                alpha=0.05,
+                alpha=0.01,
                 sigma=0.1
             )
         x_pos = x_out
